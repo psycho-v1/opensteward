@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>OpenSteward demo</title>
+  <style>
+    body { font-family: Georgia, serif; margin: 2rem auto; max-width: 42rem; line-height: 1.45; color: #1c1917; }
+    button { margin: 0.25rem 0.4rem 0.25rem 0; }
+    pre { background: #f5f5f4; padding: 1rem; overflow: auto; }
+  </style>
+</head>
+<body>
+  <h1>OpenSteward</h1>
+  <p>Local demo of the three acceptance cases. Nothing leaves this page.</p>
+  <button id="shutdown">1. Resolve after shutdown</button>
+  <button id="retract">2. Retract without erasing the hash</button>
+  <button id="revoke">3. Community revocation</button>
+  <pre id="out">Choose a case.</pre>
+  <script>
+    const store = new Map();
+    function register(id, contentHash, steward) {
+      store.set(id, { id, contentHash, steward, status: 'registered', sourceShutdown: false, mirrors: [], authorities: new Set(), log: ['registered'] });
+    }
+    function view(id) {
+      const e = store.get(id);
+      return { id: e.id, contentHash: e.contentHash, status: e.status, sourceShutdown: e.sourceShutdown, mirrors: e.mirrors, resolvable: !e.sourceShutdown || e.mirrors.length > 0, reuseAllowed: !['retracted','revoked','embargoed'].includes(e.status), log: e.log };
+    }
+    const out = document.getElementById('out');
+    document.getElementById('shutdown').onclick = () => {
+      register('ds-1','sha256:abc','steward');
+      const e = store.get('ds-1');
+      e.mirrors.push('bafy-mirror-1');
+      e.sourceShutdown = true;
+      out.textContent = JSON.stringify(view('ds-1'), null, 2);
+    };
+    document.getElementById('retract').onclick = () => {
+      register('ds-2','sha256:def','steward');
+      const e = store.get('ds-2');
+      e.status = 'retracted';
+      e.log.push('retracted');
+      out.textContent = JSON.stringify(view('ds-2'), null, 2);
+    };
+    document.getElementById('revoke').onclick = () => {
+      register('ds-3','sha256:ghi','steward');
+      const e = store.get('ds-3');
+      e.authorities.add('board');
+      e.status = 'revoked';
+      e.log.push('revoked by board');
+      out.textContent = JSON.stringify(view('ds-3'), null, 2);
+    };
+  </script>
+</body>
+</html>

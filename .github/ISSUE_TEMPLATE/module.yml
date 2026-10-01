@@ -1,0 +1,17 @@
+name: Module
+description: Add a mirror, credential, or archive adapter
+title: "[module] "
+labels: ["module", "good first issue"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Which edge fails today?
+    validations:
+      required: true
+  - type: textarea
+    id: module
+    attributes:
+      label: Which file will you add under adapters/?
+    validations:
+      required: true
